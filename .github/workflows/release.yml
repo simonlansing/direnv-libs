@@ -71,18 +71,25 @@ jobs:
     env:
       TAG_NAME: ${{ needs.release-please.outputs.tag_name }}
     steps:
+      - name: Checkout homebrew-tap
+        uses: actions/checkout@v4
+        with:
+          repository: simlans/homebrew-tap
+          token: ${{ secrets.HOMEBREW_TAP_TOKEN }}
+          path: homebrew-tap
+
       - name: Update Homebrew formula
         env:
-          GH_TOKEN: ${{ secrets.HOMEBREW_TAP_TOKEN }}
+          RELEASE_URL: https://github.com/simlans/direnv-libs/releases/download
         run: |
-          SHA_DARWIN_ARM64=$(curl -sL "https://github.com/simlans/direnv-libs/releases/download/${TAG_NAME}/op-cache-aarch64-apple-darwin.tar.gz" | shasum -a 256 | cut -d' ' -f1)
-          SHA_DARWIN_X86=$(curl -sL "https://github.com/simlans/direnv-libs/releases/download/${TAG_NAME}/op-cache-x86_64-apple-darwin.tar.gz" | shasum -a 256 | cut -d' ' -f1)
-          SHA_LINUX_X86=$(curl -sL "https://github.com/simlans/direnv-libs/releases/download/${TAG_NAME}/op-cache-x86_64-unknown-linux-gnu.tar.gz" | shasum -a 256 | cut -d' ' -f1)
-          SHA_LINUX_ARM64=$(curl -sL "https://github.com/simlans/direnv-libs/releases/download/${TAG_NAME}/op-cache-aarch64-unknown-linux-gnu.tar.gz" | shasum -a 256 | cut -d' ' -f1)
-
+          SHA_DARWIN_ARM64=$(curl -sL "${RELEASE_URL}/${TAG_NAME}/op-cache-aarch64-apple-darwin.tar.gz" | shasum -a 256 | cut -d' ' -f1)
+          SHA_DARWIN_X86=$(curl -sL "${RELEASE_URL}/${TAG_NAME}/op-cache-x86_64-apple-darwin.tar.gz" | shasum -a 256 | cut -d' ' -f1)
+          SHA_LINUX_X86=$(curl -sL "${RELEASE_URL}/${TAG_NAME}/op-cache-x86_64-unknown-linux-gnu.tar.gz" | shasum -a 256 | cut -d' ' -f1)
+          SHA_LINUX_ARM64=$(curl -sL "${RELEASE_URL}/${TAG_NAME}/op-cache-aarch64-unknown-linux-gnu.tar.gz" | shasum -a 256 | cut -d' ' -f1)
           VERSION="${TAG_NAME#v}"
 
-          cat > /tmp/op-cache.rb << FORMULA
+          mkdir -p homebrew-tap/Formula
+          cat > homebrew-tap/Formula/op-cache.rb <<EOF
           class OpCache < Formula
             desc "Fast cache for 1Password CLI reads"
             homepage "https://github.com/simlans/direnv-libs"
@@ -91,20 +98,20 @@ jobs:
 
             on_macos do
               if Hardware::CPU.arm?
-                url "https://github.com/simlans/direnv-libs/releases/download/${TAG_NAME}/op-cache-aarch64-apple-darwin.tar.gz"
+                url "${RELEASE_URL}/${TAG_NAME}/op-cache-aarch64-apple-darwin.tar.gz"
                 sha256 "${SHA_DARWIN_ARM64}"
               else
-                url "https://github.com/simlans/direnv-libs/releases/download/${TAG_NAME}/op-cache-x86_64-apple-darwin.tar.gz"
+                url "${RELEASE_URL}/${TAG_NAME}/op-cache-x86_64-apple-darwin.tar.gz"
                 sha256 "${SHA_DARWIN_X86}"
               end
             end
 
             on_linux do
               if Hardware::CPU.arm?
-                url "https://github.com/simlans/direnv-libs/releases/download/${TAG_NAME}/op-cache-aarch64-unknown-linux-gnu.tar.gz"
+                url "${RELEASE_URL}/${TAG_NAME}/op-cache-aarch64-unknown-linux-gnu.tar.gz"
                 sha256 "${SHA_LINUX_ARM64}"
               else
-                url "https://github.com/simlans/direnv-libs/releases/download/${TAG_NAME}/op-cache-x86_64-unknown-linux-gnu.tar.gz"
+                url "${RELEASE_URL}/${TAG_NAME}/op-cache-x86_64-unknown-linux-gnu.tar.gz"
                 sha256 "${SHA_LINUX_X86}"
               end
             end
@@ -113,12 +120,11 @@ jobs:
               bin.install "op-cache"
             end
           end
-          FORMULA
+          EOF
 
-          gh repo clone simlans/homebrew-tap /tmp/homebrew-tap || true
-          mkdir -p /tmp/homebrew-tap/Formula
-          cp /tmp/op-cache.rb /tmp/homebrew-tap/Formula/op-cache.rb
-          cd /tmp/homebrew-tap
+      - name: Push formula
+        working-directory: homebrew-tap
+        run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add Formula/op-cache.rb
