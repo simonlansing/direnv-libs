@@ -5,4 +5,4 @@
 
 ### Features
 
-* initial release with op-cache library ([4ba1092](https://github.com/sipgate/direnv-libs/commit/4ba109203a7b00fa5527e578c8835de614dbb59e))
+* initial release with op-cache library ([4ba1092](https://github.com/simlans/direnv-libs/commit/4ba109203a7b00fa5527e578c8835de614dbb59e))
