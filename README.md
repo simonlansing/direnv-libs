@@ -19,7 +19,7 @@ Caches [1Password CLI](https://developer.1password.com/docs/cli) reads to avoid 
 Add to your `.envrc`:
 
 ```bash
-source_url "https://raw.githubusercontent.com/sipgate/direnv-libs/v1.0.0/op-cache.sh" "sha256-<hash>"
+source_url "https://raw.githubusercontent.com/simonlansing/direnv-libs/v1.0.0/op-cache.sh" "sha256-<hash>"
 ```
 
 Then use `cached_op_read` instead of `op read`:
@@ -30,15 +30,14 @@ export DB_PASSWORD=$(cached_op_read "op://vault/item/password")
 
 ## Updating
 
-1. Check the [releases](https://github.com/sipgate/direnv-libs/releases) for the latest version
-2. Generate the SHA256 hash for the new version:
+1. Check the [releases](https://github.com/simonlansing/direnv-libs/releases) for the latest version
+2. Generate the SHA256 hash (base64-encoded) for the new version:
    ```bash
-   curl -sL "https://raw.githubusercontent.com/sipgate/direnv-libs/vX.Y.Z/op-cache.sh" | shasum -a 256
-   # Output: d5558cd4...  -
+   curl -sL "https://raw.githubusercontent.com/simonlansing/direnv-libs/vX.Y.Z/op-cache.sh" | openssl dgst -sha256 -binary | openssl base64 -A
    ```
-   Prefix the hash with `sha256-` for `source_url`:
+   Prefix the output with `sha256-` for `source_url`:
    ```bash
-   source_url "https://raw.githubusercontent.com/sipgate/direnv-libs/vX.Y.Z/op-cache.sh" "sha256-d5558cd4..."
+   source_url "https://raw.githubusercontent.com/simonlansing/direnv-libs/vX.Y.Z/op-cache.sh" "sha256-UCLdQe1O..."
    ```
 3. Update the version and hash in your `.envrc`
 4. Run `direnv allow` to accept the changes
