@@ -7,12 +7,12 @@ Fast cache for [1Password CLI](https://developer.1password.com/docs/cli) reads. 
 ### Homebrew
 
 ```bash
-brew install simonlansing/tap/op-cache
+brew install breadctl/tap/op-cache
 ```
 
 ### Binary
 
-Download from [Releases](https://github.com/simonlansing/direnv-libs/releases) and place in your `$PATH`.
+Download from [Releases](https://github.com/breadctl/direnv-libs/releases) and place in your `$PATH`.
 
 ## Usage
 

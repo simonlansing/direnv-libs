@@ -67,13 +67,13 @@ jobs:
       - name: Checkout homebrew-tap
         uses: actions/checkout@v4
         with:
-          repository: simonlansing/homebrew-tap
+          repository: breadctl/homebrew-tap
           token: ${{ secrets.HOMEBREW_TAP_TOKEN }}
           path: homebrew-tap
 
       - name: Update Homebrew formula
         env:
-          RELEASE_URL: https://github.com/simonlansing/direnv-libs/releases/download
+          RELEASE_URL: https://github.com/breadctl/direnv-libs/releases/download
         run: |
           SHA_DARWIN_ARM64=$(curl -sL "${RELEASE_URL}/${TAG_NAME}/op-cache-aarch64-apple-darwin.tar.gz" | shasum -a 256 | cut -d' ' -f1)
           SHA_DARWIN_X86=$(curl -sL "${RELEASE_URL}/${TAG_NAME}/op-cache-x86_64-apple-darwin.tar.gz" | shasum -a 256 | cut -d' ' -f1)
@@ -85,7 +85,7 @@ jobs:
           cat > homebrew-tap/Formula/op-cache.rb <<FORMULA
           class OpCache < Formula
             desc "Fast cache for 1Password CLI reads"
-            homepage "https://github.com/simonlansing/direnv-libs"
+            homepage "https://github.com/breadctl/direnv-libs"
             version "${VERSION}"
             license "MIT"
 
