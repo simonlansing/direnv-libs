@@ -34,7 +34,7 @@ enum Cmd {
 }
 
 fn cache_dir() -> PathBuf {
-    let uid = std::process::id();
+    let uid = unsafe { libc::getuid() };
     PathBuf::from(format!("/tmp/op-cache-{uid}"))
 }
 
