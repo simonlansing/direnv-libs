@@ -31,8 +31,17 @@ export DB_PASSWORD=$(cached_op_read "op://vault/item/password")
 ## Updating
 
 1. Check the [releases](https://github.com/sipgate/direnv-libs/releases) for the latest version
-2. Get the new SHA: `curl -sL "https://raw.githubusercontent.com/sipgate/direnv-libs/vX.Y.Z/op-cache.sh" | shasum -a 256`
+2. Generate the SHA256 hash for the new version:
+   ```bash
+   curl -sL "https://raw.githubusercontent.com/sipgate/direnv-libs/vX.Y.Z/op-cache.sh" | shasum -a 256
+   # Output: d5558cd4...  -
+   ```
+   Prefix the hash with `sha256-` for `source_url`:
+   ```bash
+   source_url "https://raw.githubusercontent.com/sipgate/direnv-libs/vX.Y.Z/op-cache.sh" "sha256-d5558cd4..."
+   ```
 3. Update the version and hash in your `.envrc`
+4. Run `direnv allow` to accept the changes
 
 ## Prerequisites
 
