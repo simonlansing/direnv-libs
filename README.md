@@ -14,23 +14,7 @@ brew install simlans/tap/op-cache
 
 Download from [Releases](https://github.com/simlans/direnv-libs/releases) and place in your `$PATH`.
 
-### Shell script (no binary needed)
-
-You can also use the shell-only version by adding to your `.envrc`:
-
-```bash
-source_url "https://raw.githubusercontent.com/simlans/direnv-libs/vX.Y.Z/op-cache.sh" "sha256-<hash>"
-```
-
-Generate the SHA256 hash:
-
-```bash
-curl -sL "https://raw.githubusercontent.com/simlans/direnv-libs/vX.Y.Z/op-cache.sh" | openssl dgst -sha256 -binary | openssl base64 -A
-```
-
 ## Usage
-
-### CLI
 
 ```bash
 # Read a secret (cached)
@@ -43,18 +27,11 @@ op-cache read-file "op://vault/item/key" ./keyfile
 op-cache clear
 ```
 
-### In .envrc (with CLI)
+### In .envrc
 
 ```bash
 export DB_PASSWORD=$(op-cache read "op://vault/item/password")
-```
-
-### In .envrc (with shell script)
-
-```bash
-export DB_PASSWORD=$(cached_op_read "op://vault/item/password")
-cached_op_read_file "op://vault/item/key" ./keyfile
-op_cache_clear
+op-cache read-file "op://vault/item/key" ./keyfile
 ```
 
 ## Prerequisites
