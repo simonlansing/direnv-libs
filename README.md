@@ -1,48 +1,63 @@
-# direnv-libs
+# op-cache
 
-Shared [direnv](https://direnv.net/) libraries for sipgate projects.
+Fast cache for [1Password CLI](https://developer.1password.com/docs/cli) reads. Avoids repeated `op read` calls on every `direnv reload` or shell init. Cache TTL is 4 hours.
 
-## Available Libraries
+## Install
 
-### op-cache.sh
+### Homebrew
 
-Caches [1Password CLI](https://developer.1password.com/docs/cli) reads to avoid repeated `op read` calls on every `direnv reload`. Cache TTL is 4 hours.
+```bash
+brew install simonlansing/tap/op-cache
+```
 
-**Functions:**
+### Binary
 
-- `cached_op_read <op-ref>` - drop-in replacement for `$(op read <op-ref>)`
-- `cached_op_read_file <op-ref> <dest-path>` - reads a secret and writes it to a file
-- `op_cache_clear` - removes all cached secrets
+Download from [Releases](https://github.com/simonlansing/direnv-libs/releases) and place in your `$PATH`.
+
+### Shell script (no binary needed)
+
+You can also use the shell-only version by adding to your `.envrc`:
+
+```bash
+source_url "https://raw.githubusercontent.com/simonlansing/direnv-libs/vX.Y.Z/op-cache.sh" "sha256-<hash>"
+```
+
+Generate the SHA256 hash:
+
+```bash
+curl -sL "https://raw.githubusercontent.com/simonlansing/direnv-libs/vX.Y.Z/op-cache.sh" | openssl dgst -sha256 -binary | openssl base64 -A
+```
 
 ## Usage
 
-Add to your `.envrc`:
+### CLI
 
 ```bash
-source_url "https://raw.githubusercontent.com/simonlansing/direnv-libs/v1.0.0/op-cache.sh" "sha256-<hash>"
+# Read a secret (cached)
+op-cache read "op://vault/item/password"
+
+# Read a secret to a file (cached)
+op-cache read-file "op://vault/item/key" ./keyfile
+
+# Clear the cache
+op-cache clear
 ```
 
-Then use `cached_op_read` instead of `op read`:
+### In .envrc (with CLI)
+
+```bash
+export DB_PASSWORD=$(op-cache read "op://vault/item/password")
+```
+
+### In .envrc (with shell script)
 
 ```bash
 export DB_PASSWORD=$(cached_op_read "op://vault/item/password")
+cached_op_read_file "op://vault/item/key" ./keyfile
+op_cache_clear
 ```
-
-## Updating
-
-1. Check the [releases](https://github.com/simonlansing/direnv-libs/releases) for the latest version
-2. Generate the SHA256 hash (base64-encoded) for the new version:
-   ```bash
-   curl -sL "https://raw.githubusercontent.com/simonlansing/direnv-libs/vX.Y.Z/op-cache.sh" | openssl dgst -sha256 -binary | openssl base64 -A
-   ```
-   Prefix the output with `sha256-` for `source_url`:
-   ```bash
-   source_url "https://raw.githubusercontent.com/simonlansing/direnv-libs/vX.Y.Z/op-cache.sh" "sha256-UCLdQe1O..."
-   ```
-3. Update the version and hash in your `.envrc`
-4. Run `direnv allow` to accept the changes
 
 ## Prerequisites
 
-- [direnv](https://direnv.net/)
 - [1Password CLI](https://developer.1password.com/docs/cli) (`op`)
+- [direnv](https://direnv.net/) (optional, for `.envrc` usage)
